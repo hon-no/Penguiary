@@ -1,0 +1,702 @@
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Plus, Settings, Moon, Sun, X, Edit2, Trash2, Save, Download, Calendar, Search } from 'lucide-react';
+
+const PenguiDiary = () => {
+  const [showSplash, setShowSplash] = useState(true);
+  const [entries, setEntries] = useState([]);
+  const [showEditor, setShowEditor] = useState(false);
+  const [currentEntry, setCurrentEntry] = useState(null);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Settings
+  const [theme, setTheme] = useState('light');
+  const [fontSize, setFontSize] = useState('medium');
+  const [fontFamily, setFontFamily] = useState('sans');
+  const [appLanguage, setAppLanguage] = useState('tr');
+
+  const translations = {
+    tr: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'Yeni Kayıt',
+      myDiary: 'Günlüğüm',
+      settings: 'Ayarlar',
+      search: 'Ara...',
+      titlePlaceholder: 'Başlık...',
+      contentPlaceholder: 'Bugün neler oldu?',
+      save: 'Kaydet',
+      edit: 'Düzenle',
+      delete: 'Sil',
+      cancel: 'İptal',
+      noEntries: 'Henüz günlük kaydı yok',
+      startWriting: 'İlk kaydını oluşturmak için + butonuna tıkla',
+      theme: 'Tema',
+      light: 'Açık',
+      dark: 'Koyu',
+      fontSize: 'Yazı Boyutu',
+      small: 'Küçük',
+      medium: 'Orta',
+      large: 'Büyük',
+      fontFamily: 'Yazı Tipi',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'Uygulama Dili',
+      export: 'Dışa Aktar',
+      deleteConfirm: 'Bu kaydı silmek istediğinize emin misiniz?'
+    },
+    en: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'New Entry',
+      myDiary: 'My Diary',
+      settings: 'Settings',
+      search: 'Search...',
+      titlePlaceholder: 'Title...',
+      contentPlaceholder: 'What happened today?',
+      save: 'Save',
+      edit: 'Edit',
+      delete: 'Delete',
+      cancel: 'Cancel',
+      noEntries: 'No diary entries yet',
+      startWriting: 'Click + to create your first entry',
+      theme: 'Theme',
+      light: 'Light',
+      dark: 'Dark',
+      fontSize: 'Font Size',
+      small: 'Small',
+      medium: 'Medium',
+      large: 'Large',
+      fontFamily: 'Font Family',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'App Language',
+      export: 'Export',
+      deleteConfirm: 'Are you sure you want to delete this entry?'
+    },
+    ru: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'Новая запись',
+      myDiary: 'Мой дневник',
+      settings: 'Настройки',
+      search: 'Поиск...',
+      titlePlaceholder: 'Заголовок...',
+      contentPlaceholder: 'Что произошло сегодня?',
+      save: 'Сохранить',
+      edit: 'Редактировать',
+      delete: 'Удалить',
+      cancel: 'Отмена',
+      noEntries: 'Пока нет записей',
+      startWriting: 'Нажмите + чтобы создать первую запись',
+      theme: 'Тема',
+      light: 'Светлая',
+      dark: 'Темная',
+      fontSize: 'Размер шрифта',
+      small: 'Маленький',
+      medium: 'Средний',
+      large: 'Большой',
+      fontFamily: 'Шрифт',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'Язык приложения',
+      export: 'Экспорт',
+      deleteConfirm: 'Вы уверены, что хотите удалить эту запись?'
+    },
+    de: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'Neuer Eintrag',
+      myDiary: 'Mein Tagebuch',
+      settings: 'Einstellungen',
+      search: 'Suchen...',
+      titlePlaceholder: 'Titel...',
+      contentPlaceholder: 'Was ist heute passiert?',
+      save: 'Speichern',
+      edit: 'Bearbeiten',
+      delete: 'Löschen',
+      cancel: 'Abbrechen',
+      noEntries: 'Noch keine Einträge',
+      startWriting: 'Klicke auf +, um deinen ersten Eintrag zu erstellen',
+      theme: 'Thema',
+      light: 'Hell',
+      dark: 'Dunkel',
+      fontSize: 'Schriftgröße',
+      small: 'Klein',
+      medium: 'Mittel',
+      large: 'Groß',
+      fontFamily: 'Schriftart',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'App-Sprache',
+      export: 'Exportieren',
+      deleteConfirm: 'Möchten Sie diesen Eintrag wirklich löschen?'
+    },
+    fr: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'Nouvelle entrée',
+      myDiary: 'Mon journal',
+      settings: 'Paramètres',
+      search: 'Rechercher...',
+      titlePlaceholder: 'Titre...',
+      contentPlaceholder: 'Que s\'est-il passé aujourd\'hui?',
+      save: 'Enregistrer',
+      edit: 'Modifier',
+      delete: 'Supprimer',
+      cancel: 'Annuler',
+      noEntries: 'Aucune entrée pour le moment',
+      startWriting: 'Cliquez sur + pour créer votre première entrée',
+      theme: 'Thème',
+      light: 'Clair',
+      dark: 'Sombre',
+      fontSize: 'Taille de police',
+      small: 'Petit',
+      medium: 'Moyen',
+      large: 'Grand',
+      fontFamily: 'Police',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'Langue de l\'application',
+      export: 'Exporter',
+      deleteConfirm: 'Êtes-vous sûr de vouloir supprimer cette entrée?'
+    },
+    pt: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'Nova Entrada',
+      myDiary: 'Meu Diário',
+      settings: 'Configurações',
+      search: 'Pesquisar...',
+      titlePlaceholder: 'Título...',
+      contentPlaceholder: 'O que aconteceu hoje?',
+      save: 'Salvar',
+      edit: 'Editar',
+      delete: 'Excluir',
+      cancel: 'Cancelar',
+      noEntries: 'Nenhuma entrada ainda',
+      startWriting: 'Clique em + para criar sua primeira entrada',
+      theme: 'Tema',
+      light: 'Claro',
+      dark: 'Escuro',
+      fontSize: 'Tamanho da Fonte',
+      small: 'Pequeno',
+      medium: 'Médio',
+      large: 'Grande',
+      fontFamily: 'Tipo de Fonte',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'Idioma do Aplicativo',
+      export: 'Exportar',
+      deleteConfirm: 'Tem certeza que deseja excluir esta entrada?'
+    },
+    ja: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: '新しいエントリー',
+      myDiary: '私の日記',
+      settings: '設定',
+      search: '検索...',
+      titlePlaceholder: 'タイトル...',
+      contentPlaceholder: '今日は何がありましたか？',
+      save: '保存',
+      edit: '編集',
+      delete: '削除',
+      cancel: 'キャンセル',
+      noEntries: 'まだエントリーがありません',
+      startWriting: '+をクリックして最初のエントリーを作成',
+      theme: 'テーマ',
+      light: 'ライト',
+      dark: 'ダーク',
+      fontSize: 'フォントサイズ',
+      small: '小',
+      medium: '中',
+      large: '大',
+      fontFamily: 'フォント',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'アプリの言語',
+      export: 'エクスポート',
+      deleteConfirm: 'このエントリーを削除してもよろしいですか？'
+    },
+    es: {
+      appName: 'PenguiDiary',
+      welcome: 'Welcome Pengui',
+      newEntry: 'Nueva Entrada',
+      myDiary: 'Mi Diario',
+      settings: 'Configuración',
+      search: 'Buscar...',
+      titlePlaceholder: 'Título...',
+      contentPlaceholder: '¿Qué pasó hoy?',
+      save: 'Guardar',
+      edit: 'Editar',
+      delete: 'Eliminar',
+      cancel: 'Cancelar',
+      noEntries: 'Aún no hay entradas',
+      startWriting: 'Haz clic en + para crear tu primera entrada',
+      theme: 'Tema',
+      light: 'Claro',
+      dark: 'Oscuro',
+      fontSize: 'Tamaño de Fuente',
+      small: 'Pequeño',
+      medium: 'Mediano',
+      large: 'Grande',
+      fontFamily: 'Tipo de Fuente',
+      sans: 'Sans Serif',
+      serif: 'Serif',
+      mono: 'Monospace',
+      appLanguage: 'Idioma de la Aplicación',
+      export: 'Exportar',
+      deleteConfirm: '¿Estás seguro de que quieres eliminar esta entrada?'
+    }
+  };
+
+  const t = translations[appLanguage];
+
+  const languageNames = {
+    tr: 'Türkçe',
+    en: 'English',
+    ru: 'Русский',
+    de: 'Deutsch',
+    fr: 'Français',
+    pt: 'Português',
+    ja: '日本語',
+    es: 'Español'
+  };
+
+  useEffect(() => {
+    setTimeout(() => setShowSplash(false), 2500);
+    
+    const saved = localStorage.getItem('penguiEntries');
+    if (saved) setEntries(JSON.parse(saved));
+    
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) setTheme(savedTheme);
+    
+    const savedFontSize = localStorage.getItem('fontSize');
+    if (savedFontSize) setFontSize(savedFontSize);
+    
+    const savedFontFamily = localStorage.getItem('fontFamily');
+    if (savedFontFamily) setFontFamily(savedFontFamily);
+    
+    const savedAppLang = localStorage.getItem('appLanguage');
+    if (savedAppLang) setAppLanguage(savedAppLang);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('fontSize', fontSize);
+  }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem('fontFamily', fontFamily);
+  }, [fontFamily]);
+
+  useEffect(() => {
+    localStorage.setItem('appLanguage', appLanguage);
+  }, [appLanguage]);
+
+  const saveEntry = () => {
+    if (!title.trim() && !content.trim()) return;
+    
+    const entry = {
+      id: currentEntry?.id || Date.now(),
+      title: title.trim() || 'Untitled',
+      content: content.trim(),
+      date: currentEntry?.date || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    let updated;
+    if (currentEntry) {
+      updated = entries.map(e => e.id === entry.id ? entry : e);
+    } else {
+      updated = [entry, ...entries];
+    }
+    
+    setEntries(updated);
+    localStorage.setItem('penguiEntries', JSON.stringify(updated));
+    closeEditor();
+  };
+
+  const deleteEntry = (id) => {
+    if (confirm(t.deleteConfirm)) {
+      const updated = entries.filter(e => e.id !== id);
+      setEntries(updated);
+      localStorage.setItem('penguiEntries', JSON.stringify(updated));
+    }
+  };
+
+  const openEditor = (entry = null) => {
+    setCurrentEntry(entry);
+    setTitle(entry?.title || '');
+    setContent(entry?.content || '');
+    setShowEditor(true);
+  };
+
+  const closeEditor = () => {
+    setShowEditor(false);
+    setCurrentEntry(null);
+    setTitle('');
+    setContent('');
+  };
+
+  const exportData = () => {
+    const dataStr = JSON.stringify(entries, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'penguiary-backup.json';
+    link.click();
+  };
+
+  const filteredEntries = entries.filter(e => 
+    e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const fontSizeClasses = {
+    small: 'text-sm',
+    medium: 'text-base',
+    large: 'text-lg'
+  };
+
+  const fontFamilyClasses = {
+    sans: 'font-sans',
+    serif: 'font-serif',
+    mono: 'font-mono'
+  };
+
+  const themeClasses = theme === 'dark' 
+    ? 'bg-gray-900 text-gray-100' 
+    : 'bg-gradient-to-br from-green-50 to-blue-50 text-gray-900';
+
+  const cardClasses = theme === 'dark'
+    ? 'bg-gray-800 border-gray-700'
+    : 'bg-white border-gray-200';
+
+  const inputClasses = theme === 'dark'
+    ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400'
+    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400';
+
+  // Splash Screen
+  if (showSplash) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          {/* Cute Dinosaur Doodle */}
+          <div className="mb-8 animate-bounce-slow">
+            <svg width="120" height="120" viewBox="0 0 120 120" className="mx-auto">
+              {/* Body */}
+              <ellipse cx="60" cy="70" rx="35" ry="30" fill="#4ade80" stroke="#22c55e" strokeWidth="3"/>
+              
+              {/* Head */}
+              <circle cx="60" cy="40" r="25" fill="#4ade80" stroke="#22c55e" strokeWidth="3"/>
+              
+              {/* Eyes */}
+              <circle cx="52" cy="35" r="4" fill="#1f2937"/>
+              <circle cx="68" cy="35" r="4" fill="#1f2937"/>
+              <circle cx="53" cy="34" r="2" fill="white"/>
+              <circle cx="69" cy="34" r="2" fill="white"/>
+              
+              {/* Smile */}
+              <path d="M 50 45 Q 60 50 70 45" stroke="#22c55e" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              
+              {/* Spikes on back */}
+              <path d="M 40 55 L 35 45 L 38 55 M 48 52 L 45 42 L 48 52 M 56 50 L 55 40 L 57 50 M 64 50 L 65 40 L 66 50 M 72 52 L 75 42 L 74 52 M 80 55 L 85 45 L 82 55" 
+                    fill="#22c55e" stroke="#22c55e" strokeWidth="2"/>
+              
+              {/* Legs */}
+              <rect x="45" y="95" width="8" height="15" rx="4" fill="#4ade80" stroke="#22c55e" strokeWidth="2"/>
+              <rect x="67" y="95" width="8" height="15" rx="4" fill="#4ade80" stroke="#22c55e" strokeWidth="2"/>
+              
+              {/* Tail */}
+              <path d="M 25 75 Q 15 80 20 90" stroke="#22c55e" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              
+              {/* Arms */}
+              <ellipse cx="35" cy="65" rx="8" ry="12" fill="#4ade80" stroke="#22c55e" strokeWidth="2"/>
+              <ellipse cx="85" cy="65" rx="8" ry="12" fill="#4ade80" stroke="#22c55e" strokeWidth="2"/>
+            </svg>
+          </div>
+          
+          <h1 className="text-4xl font-bold text-white mb-2 animate-slide-up" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.1)'}}>
+            {t.welcome}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-white/80">
+            <BookOpen className="w-5 h-5" />
+            <span className="text-lg">{t.appName}</span>
+          </div>
+        </div>
+        
+        <style>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+          }
+          @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+          }
+          @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in {
+            animation: fade-in 0.8s ease-out;
+          }
+          .animate-bounce-slow {
+            animation: bounce-slow 2s ease-in-out infinite;
+          }
+          .animate-slide-up {
+            animation: slide-up 0.6s ease-out 0.3s both;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen ${themeClasses} ${fontFamilyClasses[fontFamily]} ${fontSizeClasses[fontSize]} transition-all duration-300`}>
+      <div className="max-w-4xl mx-auto p-4 pb-20">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 pt-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">{t.appName}</h1>
+              <p className="text-xs opacity-60">{t.myDiary}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowSettings(true)}
+              className={`p-2.5 rounded-xl ${cardClasses} border shadow-sm hover:shadow-md transition-shadow`}
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className={`${cardClasses} rounded-xl border p-3 mb-4 flex items-center gap-3 shadow-sm`}>
+          <Search className="w-5 h-5 opacity-40" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t.search}
+            className="flex-1 bg-transparent outline-none"
+          />
+        </div>
+
+        {/* Entries List */}
+        {filteredEntries.length === 0 ? (
+          <div className={`${cardClasses} rounded-xl border p-12 text-center shadow-sm`}>
+            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full mx-auto mb-4 flex items-center justify-center opacity-20">
+              <BookOpen className="w-10 h-10 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2 opacity-60">{t.noEntries}</h3>
+            <p className="opacity-40 text-sm">{t.startWriting}</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredEntries.map((entry) => (
+              <div key={entry.id} className={`${cardClasses} rounded-xl border p-5 shadow-sm hover:shadow-md transition-all`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold mb-1">{entry.title}</h3>
+                    <div className="flex items-center gap-2 text-xs opacity-50">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{new Date(entry.date).toLocaleDateString(appLanguage, { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        weekday: 'long'
+                      })}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openEditor(entry)}
+                      className="p-2 hover:bg-blue-500 hover:text-white rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteEntry(entry.id)}
+                      className="p-2 hover:bg-red-500 hover:text-white rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <p className="leading-relaxed opacity-75 whitespace-pre-wrap line-clamp-3">{entry.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Floating Add Button */}
+        <button
+          onClick={() => openEditor()}
+          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center hover:scale-110 active:scale-95"
+        >
+          <Plus className="w-8 h-8" />
+        </button>
+
+        {/* Editor Modal */}
+        {showEditor && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+            <div className={`${cardClasses} rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl`}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">{currentEntry ? t.edit : t.newEntry}</h2>
+                <button onClick={closeEditor} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={t.titlePlaceholder}
+                className={`w-full p-4 ${inputClasses} border rounded-xl mb-4 font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-green-500`}
+              />
+
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={t.contentPlaceholder}
+                className={`w-full h-96 p-4 ${inputClasses} border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-green-500 leading-relaxed`}
+              />
+
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={saveEntry}
+                  className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Save className="w-5 h-5" />
+                  {t.save}
+                </button>
+                <button
+                  onClick={closeEditor}
+                  className={`px-6 py-3 ${inputClasses} border rounded-xl font-semibold hover:shadow-md transition-all`}
+                >
+                  {t.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Modal */}
+        {showSettings && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+            <div className={`${cardClasses} rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl`}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">{t.settings}</h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={exportData}
+                    className="p-2 hover:bg-green-500 hover:text-white rounded-lg transition-colors"
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Theme */}
+                <div>
+                  <label className="block mb-3 font-semibold">{t.theme}</label>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setTheme('light')}
+                      className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${theme === 'light' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-500 shadow-md' : `${cardClasses} border hover:border-green-500`}`}
+                    >
+                      <Sun className="w-4 h-4 inline mr-2" />
+                      {t.light}
+                    </button>
+                    <button
+                      onClick={() => setTheme('dark')}
+                      className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${theme === 'dark' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-500 shadow-md' : `${cardClasses} border hover:border-green-500`}`}
+                    >
+                      <Moon className="w-4 h-4 inline mr-2" />
+                      {t.dark}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Font Size */}
+                <div>
+                  <label className="block mb-3 font-semibold">{t.fontSize}</label>
+                  <div className="flex gap-3">
+                    {['small', 'medium', 'large'].map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setFontSize(size)}
+                        className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${fontSize === size ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-500 shadow-md' : `${cardClasses} border hover:border-green-500`}`}
+                      >
+                        {t[size]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Font Family */}
+                <div>
+                  <label className="block mb-3 font-semibold">{t.fontFamily}</label>
+                  <div className="flex gap-3">
+                    {['sans', 'serif', 'mono'].map((font) => (
+                      <button
+                        key={font}
+                        onClick={() => setFontFamily(font)}
+                        className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${fontFamily === font ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-500 shadow-md' : `${cardClasses} border hover:border-green-500`}`}
+                      >
+                        {t[font]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* App Language */}
+                <div>
+                  <label className="block mb-3 font-semibold">{t.appLanguage}</label>
+                  <select
+                    value={appLanguage}
+                    onChange={(e) => setAppLanguage(e.target.value)}
+                    className={`w-full p-3 ${inputClasses} border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500`}
+                  >
+                    {Object.entries(languageNames).map(([code, name]) => (
+                      <option key={code} value={code}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PenguiDiary;
